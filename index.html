@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistani SIM Database</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated-title {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .animated-subtitle {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .animated-form {
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .animated-result {
+            animation: fadeIn 2.5s ease-in-out;
+        }
+
+        /* Form Styles */
+        form {
+            margin-top: 1.5rem;
+        }
+
+        input[type="text"] {
+            padding: 0.5rem;
+            width: 80%;
+            max-width: 300px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        /* Result Styles */
+        #result {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="animated-title">Pakistani SIM Database</h1>
+        <p class="animated-subtitle">Check SIM details by entering the phone number</p>
+        
+        <form id="simForm" class="animated-form">
+            <input type="text" id="phoneNumber" placeholder="Enter Phone Number (e.g., 923001234567)" required>
+            <button type="submit">Check SIM Details</button>
+        </form>
+
+        <div id="result" class="animated-result"></div>
+    </div>
+
+    <script>
+        document.getElementById('simForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent form submission
+
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const resultDiv = document.getElementById('result');
+
+            // Validate phone number
+            if (!phoneNumber || phoneNumber.length !== 12 || !phoneNumber.startsWith('92')) {
+                resultDiv.innerHTML = "<p>Please enter a valid 12-digit phone number starting with 92 (e.g., 923001234567).</p>";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Fetch data from API
+            fetch(`https://fam-official.serv00.net/sim/api.php?num=${phoneNumber}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data); // Debugging: Log the API response
+                    if (data.error) {
+                        resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <p><strong>Number:</strong> ${data.number || 'N/A'}</p>
+                            <p><strong>Network:</strong> ${data.network || 'N/A'}</p>
+                            <p><strong>Status:</strong> ${data.status || 'N/A'}</p>
+                            <p><strong>Details:</strong> ${data.details || 'N/A'}</p>
+                        `;
+                    }
+                    resultDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<p>Error fetching data. Please try again later.</p>`;
+                    resultDiv.style.display = 'block';
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
